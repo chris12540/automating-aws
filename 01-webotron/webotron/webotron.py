@@ -1,26 +1,39 @@
 import boto3
 import click
 
-session = boto3.Session(profile_name='pythonAutomation')
+session = boto3.Session(profile_name="pythonAutomation")
 s3 = session.resource('s3')
+
 
 @click.group()
 def cli():
-	"Webotron deploys websites to AWS"
-	pass
+    "Webotron deploys websites to AWS"
+    pass
+
 
 @cli.command('list-buckets')
 def list_buckets():
-	"List all s3 buckets"
-	for bucket in s3.buckets.all():
-		print(bucket)
+    "List all s3 buckets"
+    for bucket in s3.buckets.all():
+        print(bucket)
 
-@cli.command("list-bucket-objects")
+
+@cli.command('list-bucket-objects')
 @click.argument('bucket')
 def list_bucket_objects(bucket):
-	"List objects in an s3 bucket"
-	for obj in s3.Bucket(bucket).objects.all():
-		print(obj)
+    "List all objects in a bucket"
+    for obj in s3.Bucket(bucket).objects.all():
+        print(obj)
+
+
+@cli.command('bucket-upload')
+@click.argument('bucket')
+@click.argument('file')
+@click.argument('key')
+def bucket_upload(bucket, file, key):
+    "Upload object to bucket"
+    s3.Bucket(bucket).upload_file(file, key)
+
 
 if __name__ == '__main__':
-	cli()
+    cli()

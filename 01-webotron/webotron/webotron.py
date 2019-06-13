@@ -35,5 +35,49 @@ def bucket_upload(bucket, file, key):
     s3.Bucket(bucket).upload_file(file, key)
 
 
+@cli.command('setup-bucket')
+@click.argument('bucket')
+def setup_bucket(bucket):
+    "Create and configure bucket"
+    s3_bucket = None
+    if session.region_name == 'us-east-1':
+        s3_bucket = s3.create_bucket(Bucket=bucket)
+    else:
+        s3_bucket = s3.create_bucket(
+            Bucket=bucket, CreateBucketConfiguration={'LocationContraint': session.region_name})
+    policy = """
+    {
+    "Version":"2012-10-17",
+    "Statement":[{
+    "Sid":"PublicReadGetObject",
+    "Effect":"Allow",
+    "Principal": "*",
+        "Action":["s3:GetObject"],
+        "Resource":["arn:aws:s3:::%s/*"]
+        }
+    ]}
+    """ % s3_bucket.name
+    policy = policy.strip()
+
+    pol = s3_bucket.Policy()
+    pol.put(Policy=policy)
+    ws = s3_bucket.Website()
+
+    ws.put(WebsiteConfiguration={
+        'ErrorDocument': {
+            'Key': 'error.html'
+        },
+        'IndexDocument': {
+            'Suffix': 'index.html'
+        }})
+
+    print(s3_bucket)
+    print(policy)
+    print(pol)
+    print(ws)
+
+    return
+
+
 if __name__ == '__main__':
     cli()

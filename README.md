@@ -14,3 +14,4 @@ Webotron currently has the following features:
 - List contents for a bucket
 - Upload file to bucket
 - Create and configure bucket
+- Sync directory tree to bucket
